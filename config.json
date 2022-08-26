@@ -1,0 +1,11 @@
+{
+    "public":true,
+    "private":true,
+    "tester":true,
+    "publicport":5000,
+    "privateport":8000,
+    "testerport":3000,
+    "publicuri":"http://localhost:5000",
+    "privateuri":"http://localhost:8000",
+    "testeruri":"http://localhost:3000"
+}
