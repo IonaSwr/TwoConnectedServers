@@ -1,7 +1,7 @@
 {
     "public":true,
     "private":true,
-    "tester":true,
+    "tester":false,
     "publicport":5000,
     "privateport":8000,
     "testerport":3000,
