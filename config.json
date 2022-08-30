@@ -8,5 +8,5 @@
     "publicuri":"http://localhost:5000",
     "privateuri":"http://localhost:8000",
     "testeruri":"http://localhost:4000",
-    "insideApplication":"http://infrastructure/"
+    "insideApplication":"http://localhost:3000"
 }

@@ -51,7 +51,10 @@ function BringRequsetsToPrivateServer()
         //console.log(body);
         var arr = JSON.parse(body);
         for(var i = 0 ; i < arr.length;i++)
+        {
+            arr[i].arrived = Date.now();
             allRequestsListOnPrivate.push(arr[i]);
+        }
             
         //console.log(JSON.stringify(allRequestsListOnPrivate));
         //console.log('arrived ' + calcPingTime + " " + calculationCounter);        
@@ -65,30 +68,35 @@ function ResolveRequsetsToPublicServer()
     {
         if(allRequestsListOnPrivate[i].reqStep == 1)
         {
-            allRequestsListOnPrivate[i].reqStep = 2
-            //allRequestsListOnPrivate[i].reqData.headers.serversCounter=allRequestsListOnPrivate[i].reqCounter;
-            
+            allRequestsListOnPrivate[i].started = Date.now();
+            allRequestsListOnPrivate[i].reqStep = 2;
             request({
                 method:allRequestsListOnPrivate[i].reqData.method,
-                //headers: {'content-type' : 'application/json','serversCounter':allRequestsListOnPrivate[i].reqCounter},
-                headers: allRequestsListOnPrivate[i].reqData.headers,
-                url:     config.insideApplication + allRequestsListOnPrivate[i].reqData.url,
-                //json: {reqCounter: allRequestsListOnPrivate[i].reqCounter}
-                //url:'https://www.google.com/'        
+                headers: {'content-type' : 'application/json','serversCounter':allRequestsListOnPrivate[i].reqCounter},
+                url:     config.insideApplication + allRequestsListOnPrivate[i].reqData.url                               
             }, function(error, response, body){
               
+                for(var i = 0 ; i < allRequestsListOnPrivate.length ; i++)
+                    if(response.req.getHeader('serversCounter') == allRequestsListOnPrivate[i].reqCounter && allRequestsListOnPrivate[i].reqStep == 2)
+                    {
+                        allRequestsListOnPrivate[i].reqStep = 3;
+                        allRequestsListOnPrivate[i].finished = Date.now();
+                    }
                 request({
                     method:"POST",
-                    headers: {'content-type' : 'application/json'},
+                    headers: {'content-type' : 'application/json','serversCounter':response.req.getHeader('serversCounter')},
                     url:     config.publicuri + '/resolverequest',
                     json: {serversCounter:response.req.getHeader('serversCounter'), resbody:body,resheaders:response.headers} 
-                    //url:'https://www.google.com/'        
                 }, function(error, response, body){
-                  
-                    console.log('solved');
-                  
-                });
-              
+
+                    for(var i = 0 ; i < allRequestsListOnPrivate.length ; i++)
+                        if(response.req.getHeader('serversCounter') == allRequestsListOnPrivate[i].reqCounter && allRequestsListOnPrivate[i].reqStep == 3)
+                        {
+                            allRequestsListOnPrivate[i].reqStep = 4;
+                            allRequestsListOnPrivate[i].resolved = Date.now();
+                        }
+                    console.log('resolved');                  
+                });              
             });
         }
     }
